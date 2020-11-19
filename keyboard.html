@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+
+<html>
+
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+
+<head>
+	<meta charset="UTF-8">
+	<title>Canvas</title>
+
+	<style type="text/css">
+		canvas {
+			border: 1px solid grey;
+		}
+	</style>
+
+</head>
+
+<body>
+
+	<canvas id="canvas-for-ball"></canvas>
+
+	<script type="text/javascript">
+		// Gets a handle to the element with id canvasOne.
+		var canvas = document.getElementById("canvas-for-ball");
+		// Get a 2D context for the canvas.
+		var ctx = canvas.getContext("2d");
+		// Make the fill style red.
+		ctx.fillStyle = "rgb(255, 0, 0)";
+
+		// Ball class
+		class Ball {
+			constructor(x, y, r) {
+				this.x = x;
+				this.y = y;
+				this.r = r;
+				this.xv;
+				this.yv;
+				this.theta = 0;
+				this.thetaInc = 0.005;
+			}
+
+			draw() {
+				// Draw the ball (stroked, not filled).
+				ctx.beginPath();
+				ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+
+				ctx.fillStyle = "yellow";
+				ctx.fill();
+				ctx.stroke();
+			}
+
+			move() {
+				this.x += this.xv;
+				this.y += this.yv;
+
+				// If ball hits top or bottom
+				if (this.y > canvas.height - this.r || this.y - this.r < 0) {
+					// Reverse direction
+					this.yv = -1 * this.yv;
+				}
+				// If ball hits right or left wall
+				if (this.x > canvas.width - this.r || this.x - this.r < 0) {
+					// Reverse direction
+					this.xv = -1 * this.xv;
+					// Reverse Rotation
+					this.thetaInc *= -15;
+				}
+
+
+
+			}
+		}
+
+		// Add a Javascript event listener to the keypress event.
+
+
+		//keypresses with jQuery
+
+
+		b = new Ball(80, 60, 15);
+		b.xv = b.yv = 2;
+		function repeatme() {
+			ctx.clearRect(0, 0, 500, 400);
+			b.draw();
+			// b.rotateBall();
+			//Update the y location.
+			b.move();
+
+
+			window.requestAnimationFrame(repeatme);
+		}
+		//keypresses with jQuery
+		$(document.body).on('keydown', function (e) {
+			console.log(e.which);
+			switch (e.which) {
+				case 87:
+					console.log('W has been pressed!');
+					b.yv++;
+					break;
+				// key code for A key
+				case 65:
+					console.log('A key pressed!');
+					b.xv--;
+					break;
+				//key code for S key
+				case 83:
+					console.log("S key pressed!");
+					b.yv--;
+					break;
+				//key code for D key
+				case 68:
+					console.log("D key pressed!");
+					b.vx++;
+					break;
+			}
+		});
+
+		repeatme();
+
+
+
+	</script>
+
+</body>
+
+</html>

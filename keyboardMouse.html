@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<html>
+
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Canvas</title>
+
+    <style type="text/css">
+        canvas {
+            border: 1px solid grey;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <canvas id="myCanvas" width="350" height="350"></canvas>
+
+    <script type="text/javascript">
+        // Gets a handle to the element with id canvasOne.
+        var canvas = document.getElementById("myCanvas");
+        // Get a 2D context for the canvas.
+        var ctx = canvas.getContext("2d");
+        // Make the fill style red.
+        ctx.fillStyle = "rgb(255, 0, 0)";
+
+        // Ball class
+        class Ball {
+            constructor(x, y, r, xv, yv) {
+                this.x = x;
+                this.y = y;
+                this.r = r;
+                this.xv = xv;
+                this.yv = yv;
+                this.theta = 0;
+                this.thetaInc = 0.005;
+                this.bounce = 0.90;
+                this.gravity = 0.25;
+                this.friction = 0.98;
+            }
+
+            rotateBall() {
+                //incrementing degrees slightly every loop so ball has appearance of rotating
+                this.theta += this.thetaInc;
+            }
+            draw() {
+                // Draw the ball.
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+                for (var i = 1; i < 8; i++) {
+                    ctx.moveTo(this.x, this.y);
+                    let x1 = 15 * Math.cos((i / 7 + this.theta) * (Math.PI * 2)) + this.x;
+                    let y1 = 15 * Math.sin((i / 7 + this.theta) * (Math.PI * 2)) + this.y;
+                    ctx.lineTo(x1, y1);
+                }
+                ctx.fillStyle = "yellow";
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            move() {
+                // update ball position
+                this.x += this.xv
+                this.y += this.yv
+
+                if (this.y + this.r >= canvas.height) {
+                    //reverse direction and lose energy from bouncing
+                    this.yv *= -this.bounce;
+                    //reset position
+                    this.y = canvas.height - this.r;
+                    //slow down balls x Vel with friction 
+                    this.xv *= this.friction;
+                }
+                
+                if (this.y - this.r <= 0) {
+                    this.yv = -this.yv;
+                    this.y = this.r;
+                    this.xv *= this.friction;
+                }
+
+                
+                if (this.x - this.r <= 0) {
+                    this.xv = -this.xv;
+                    this.x = this.r;
+                }
+                
+                if (this.x + this.r >= canvas.width) {
+                    this.xv = -this.xv;
+                    this.x = canvas.width - this.r;
+                }
+
+                // add gravity
+                this.yv += this.gravity;
+            }
+        }
+        //Initialising Objects
+        b1 = new Ball(80, 60, 15, 2, 2);
+        b2 = new Ball(199, 100, 15, 2, 2);
+
+
+
+        //function to repeat animation
+        function repeatme() {
+            ctx.clearRect(0, 0, 500, 400);
+            b1.draw();
+            b1.move();
+            b1.rotateBall();
+            b2.draw();
+            b2.move();
+            b2.rotateBall();
+
+            window.requestAnimationFrame(repeatme);
+        }
+
+        //keypresses with jQuery
+        $(document.body).on('keydown', function (e) {
+            console.log(e.which);
+            switch (e.which) {
+                case 87:
+                    console.log('W has been pressed!');
+                    b1.yv += 10;
+                    break;
+                // key code for A key
+                case 65:
+                    console.log('A key pressed!');
+                    b1.xv -= 10;
+                    break;
+                //key code for S key
+                case 83:
+                    console.log("S key pressed!");
+                    b1.yv -= 10;
+                    break;
+                //key code for D key
+                case 68:
+                    console.log("D key pressed!");
+                    b1.xv += 10;
+                    break;
+                case 82:
+                    console.log("R key pressed");
+                    b1.theta += b1.thetaInc;//incrementing Ball by thetaInc everytime r is pressed?
+                    break;
+                case 84:
+                    console.log("T key pressed");
+                    b1.theta -= b1.thetaInc;//incrementing BAll by -theta everytime t is pressed
+                    break;
+            }
+
+        });
+
+        canvas.addEventListener("dblclick", function (e) {
+            console.log("repositioned");
+            var canvasPosition = {
+                x: canvas.offsetLeft,
+                y: canvas.offsetTop
+            }
+
+            //locates position of mouse click by subtracting local coordinates away from global coordinates
+            var mouse = {
+                x: e.clientX - canvasPosition.x,
+                y: e.clientY - canvasPosition.y
+            }
+
+            b1.x = mouse.x;
+            b1.y = mouse.y;
+            b1.draw();
+
+        });
+
+
+        repeatme();
+    </script>
+
+</body>
+
+</html>
